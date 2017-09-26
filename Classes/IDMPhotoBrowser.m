@@ -872,6 +872,10 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
     leftFixeItem.width = -15;
     self.navigationItem.leftBarButtonItems = @[leftFixeItem,leftItem];
     
+    if (([[[UIDevice currentDevice] systemVersion] compare:@"11.0" options:NSNumericSearch] != NSOrderedAscending)) {
+        self.navigationItem.leftBarButtonItem = leftItem;
+    }
+    
     UIButton *deleteButton = [UIButton buttonWithType:UIButtonTypeCustom];
     deleteButton.frame = CGRectMake(0, 0, 25, 25);
     [deleteButton setBackgroundImage:[UIImage imageNamed:@"IDMPhotoBrowser.bundle/images/IDMPhotoBrowser_delete.png"] forState:UIControlStateNormal];
@@ -882,6 +886,10 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
     UIBarButtonItem *rightFixeItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
     rightFixeItem.width = -10;
     self.navigationItem.rightBarButtonItems = @[rightFixeItem,rightItem];
+    
+    if (([[[UIDevice currentDevice] systemVersion] compare:@"11.0" options:NSNumericSearch] != NSOrderedAscending)) {
+        self.navigationItem.rightBarButtonItem = rightItem;
+    }
 }
 
 - (void) backButtonAction {
