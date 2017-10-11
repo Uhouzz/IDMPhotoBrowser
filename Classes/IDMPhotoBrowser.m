@@ -1217,8 +1217,9 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
     if ([self isLandscape:orientation]) {
         height = 32;
     }
-
-    return CGRectMake(0, self.view.bounds.size.height - height, self.view.bounds.size.width, height);
+    
+    CGFloat safeAreaInsetsBottom = [UIScreen mainScreen].bounds.size.height == 812 ? 34 : 0;
+    return CGRectMake(0, self.view.bounds.size.height - height - safeAreaInsetsBottom, self.view.bounds.size.width, height);
 }
 
 - (CGRect) frameForDoneButtonAtOrientation:(UIInterfaceOrientation)orientation {
