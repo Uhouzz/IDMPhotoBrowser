@@ -147,7 +147,7 @@ caption = _caption;
 }
 
 - (UIImage *)originalImage{
-    return [[SDImageCache sharedImageCache] imageFromDiskCacheForKey:[_photoURL absoluteString]];
+    return [[SDImageCache sharedImageCache] imageFromCacheForKey:[_photoURL absoluteString]];;
 }
 
 - (void)loadUnderlyingImageAndNotify {

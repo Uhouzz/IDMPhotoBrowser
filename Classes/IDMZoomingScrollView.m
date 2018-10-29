@@ -116,15 +116,13 @@
         if (img) {
             // Hide ProgressView
             // _progressView.alpha = 0.0f;
-            if ([self hasOriginImage] || [_photo underlyingImage]) {
-                [_progressView removeFromSuperview];
-            }
-            
+       
             // Set image
             _photoImageView.image = img;
             _photoImageView.hidden = NO;
             
             if ([self hasOriginImage] || [_photo underlyingImage]) {
+                [_progressView removeFromSuperview];
                 _photoImageView.frame = [self lastForFrame];
                 self.contentSize = [self lastForFrame].size;
             } else {
@@ -148,14 +146,16 @@
 - (void) setProgress:(CGFloat)progress forPhoto:(IDMPhoto *)photo {
     IDMPhoto *p = (IDMPhoto *)self.photo;
     
-    if ([photo.photoURL.absoluteString isEqualToString:p.photoURL.absoluteString]) {
-        if (_progressView.progress < progress) {
-            [_progressView setProgress:progress animated:YES];
-            if (progress == 1) {
-                [_progressView removeFromSuperview];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([photo.photoURL.absoluteString isEqualToString:p.photoURL.absoluteString]) {
+            if (_progressView.progress < progress) {
+                [_progressView setProgress:progress animated:YES];
+                if (progress == 1) {
+                    [_progressView removeFromSuperview];
+                }
             }
         }
-    }
+    });
 }
 
 // Image failed so just show black!
