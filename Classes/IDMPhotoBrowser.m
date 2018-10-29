@@ -760,7 +760,7 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
     // Frame needs changing
     _pagingScrollView.frame = pagingScrollViewFrame;
 
-    // Recalculate contentSize based on current orientation
+    // Recalculate contentSize based on current orientationhandleIDMPhotoLoadingDidEndNotification
     _pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
 
     // Adjust frames and configuration of each visible page
@@ -965,7 +965,7 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
     if (photo) {
         return [photo originalImage];
     }
-
+    return nil;
 }
 - (UIImage *) imageForPhoto:(id<IDMPhoto>)photo {
     if (photo) {
@@ -986,7 +986,6 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
 
     return nil;
 }
-
 
 - (void) loadAdjacentPhotosIfNecessary:(id<IDMPhoto>)photo {
     IDMZoomingScrollView *page = [self pageDisplayingPhoto:photo];
