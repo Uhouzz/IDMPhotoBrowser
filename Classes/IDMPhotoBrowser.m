@@ -1217,7 +1217,8 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
         height = 32;
     }
     
-    CGFloat safeAreaInsetsBottom = [UIScreen mainScreen].bounds.size.height == 812 ? 34 : 0;
+    BOOL needHair = ([UIScreen mainScreen].bounds.size.height == 812) || ([UIScreen mainScreen].bounds.size.height == 896);
+    CGFloat safeAreaInsetsBottom = needHair ? 34 : 0;
     return CGRectMake(0, self.view.bounds.size.height - height - safeAreaInsetsBottom, self.view.bounds.size.width, height);
 }
 
