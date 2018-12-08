@@ -42,6 +42,9 @@
 @property (nonatomic) BOOL displayCounterLabel;
 @property (nonatomic) BOOL displayArrowButton;
 @property (nonatomic) BOOL displayActionButton;
+
+//强制statusbar 为default
+@property (nonatomic, assign) BOOL forceStatusBarStyle;
 @property (nonatomic, assign, getter=isDeleteMode) BOOL deleteMode;
 @property (nonatomic, strong) NSArray *actionButtonTitles;
 @property (nonatomic, weak) UIImage *leftArrowImage, *leftArrowSelectedImage;

@@ -713,6 +713,11 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
 #pragma mark - Status Bar
 
 - (UIStatusBarStyle) preferredStatusBarStyle {
+    
+    if (_forceStatusBarStyle) {
+        return UIStatusBarStyleDefault;
+    }
+    
     return _useWhiteBackgroundColor ? UIStatusBarStyleDefault : UIStatusBarStyleLightContent;
 }
 
