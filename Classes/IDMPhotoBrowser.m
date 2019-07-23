@@ -881,6 +881,10 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
         self.navigationItem.leftBarButtonItem = leftItem;
     }
     
+    if (self.rightItemHidden) {
+        return;
+    }
+    
     UIButton *deleteButton = [UIButton buttonWithType:UIButtonTypeCustom];
     deleteButton.frame = CGRectMake(0, 0, 25, 25);
     [deleteButton setBackgroundImage:[UIImage imageNamed:@"IDMPhotoBrowser.bundle/images/IDMPhotoBrowser_delete.png"] forState:UIControlStateNormal];

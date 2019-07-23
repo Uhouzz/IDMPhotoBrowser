@@ -46,6 +46,8 @@
 //强制statusbar 为default
 @property (nonatomic, assign) BOOL forceStatusBarStyle;
 @property (nonatomic, assign, getter=isDeleteMode) BOOL deleteMode;
+@property (nonatomic, assign) BOOL rightItemHidden;
+
 @property (nonatomic, strong) NSArray *actionButtonTitles;
 @property (nonatomic, weak) UIImage *leftArrowImage, *leftArrowSelectedImage;
 @property (nonatomic, weak) UIImage *rightArrowImage, *rightArrowSelectedImage;
@@ -74,6 +76,7 @@
 
 // Animation time (default .28)
 @property (nonatomic) float animationDuration;
+
 
 // Init
 - (id) initWithPhotos:(NSArray *)photosArray;
