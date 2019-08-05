@@ -1364,6 +1364,9 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
         }
     }
     
+    [[UIApplication sharedApplication] setStatusBarHidden:hidden withAnimation:UIStatusBarAnimationFade];
+    [self setNeedsStatusBarAppearanceUpdate];
+    
     // Hide/show bars
     [UIView animateWithDuration:(animated ? 0.4 : 0) animations:^(void) {
         CGFloat alpha = hidden ? 0 : 0.8;
@@ -1379,10 +1382,6 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
     if (!permanent) {
         [self hideControlsAfterDelay];
     }
-    
-    [[UIApplication sharedApplication] setStatusBarHidden:hidden withAnimation:UIStatusBarAnimationFade];
-    
-    [self setNeedsStatusBarAppearanceUpdate];
 }
 
 - (void) cancelControlHiding {
