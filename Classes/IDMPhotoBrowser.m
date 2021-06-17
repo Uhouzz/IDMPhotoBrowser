@@ -81,6 +81,13 @@ NSLocalizedStringFromTableInBundle((key), nil, \
 // Private Properties
 @property (nonatomic, strong) UIActionSheet *actionsSheet;
 @property (nonatomic, strong) UIActivityViewController *activityViewController;
+@property (nonatomic, strong) UIView *bgView;
+@property (nonatomic, strong) UIView *navigationView;
+@property (nonatomic, strong) UIView *navigationBgView;
+@property (nonatomic, strong) UIButton *closeButton;
+@property (nonatomic, strong) UILabel *titleLabel;
+@property (nonatomic, strong) UILabel *descLabel;
+
 
 // Private Methods
 
@@ -214,6 +221,11 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
                                                  selector:@selector(handleIDMPhotoLoadingDidEndNotification:)
                                                      name:IDMPhoto_LOADING_DID_END_NOTIFICATION
                                                    object:nil];
+
+//        if (![UIDevice currentDevice].generatesDeviceOrientationNotifications) {
+//            [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+//        }
+//        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onDeviceOrientationChange) name:UIDeviceOrientationDidChangeNotification object:nil];
     }
     
     return self;
@@ -258,6 +270,7 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
 - (void) dealloc {
     _pagingScrollView.delegate = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
     [self releaseAllUnderlyingPhotos];
 }
 
@@ -540,8 +553,8 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
 - (void) viewDidLoad {
     // View
     self.view.backgroundColor = [UIColor colorWithWhite:(_useWhiteBackgroundColor ? 1 : 0) alpha:1];
-    
     self.view.clipsToBounds = YES;
+    [self.view addSubview:self.bgView];
     
     // Setup paging scrolling view
     CGRect pagingScrollViewFrame = [self frameForPagingScrollView];
@@ -553,7 +566,7 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
     _pagingScrollView.showsVerticalScrollIndicator = NO;
     _pagingScrollView.backgroundColor = [UIColor clearColor];
     _pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
-    [self.view addSubview:_pagingScrollView];
+    [self.bgView addSubview:_pagingScrollView];
     
     if (_senderViewForAnimation) {
         self.view.alpha = 0.0f;
@@ -655,8 +668,10 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
     // Update
     // [self reloadData];
     
+    [self setupCustomNavigationView];
     // Super
     [super viewDidLoad];
+    
 } // viewDidLoad
 
 - (void) viewWillAppear:(BOOL)animated {
@@ -706,7 +721,7 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
     _doneButton = nil;
     _previousButton = nil;
     _nextButton = nil;
-    
+
     [super viewDidUnload];
 }
 
@@ -743,19 +758,29 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
 
 #pragma mark - Layout
 
+- (void)setupCustomNavigationView {
+    [self.bgView addSubview:self.navigationBgView];
+    [self.navigationBgView addSubview:self.navigationView];
+    [self.navigationView addSubview:self.closeButton];
+    [self.navigationView addSubview:self.titleLabel];
+    [self.navigationView addSubview:self.descLabel];
+    self.titleLabel.text = @"A (主楼)/Floor33";
+    self.descLabel.text = @"楼层平面图Floor Plan";
+}
+
 - (void) viewWillLayoutSubviews {
     // Flag
     _performingLayout = YES;
     
-    UIInterfaceOrientation currentOrientation = [UIApplication sharedApplication].statusBarOrientation;
+    UIDeviceOrientation currentOrientation = [UIDevice currentDevice].orientation;
     
     // Toolbar
     _toolbar.frame = [self frameForToolbarAtOrientation:currentOrientation];
     
     // Done button
     _doneButton.frame = [self frameForDoneButtonAtOrientation:currentOrientation];
-    
-    
+    _navigationBgView.frame = [self frameForNavigationBgAtOrientation:currentOrientation];
+    _navigationView.frame = [self frameForNavigationAtOrientation:currentOrientation];
     // Remember index
     NSUInteger indexPriorToLayout = _currentPageIndex;
     
@@ -783,9 +808,14 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
     // Reset
     _currentPageIndex = indexPriorToLayout;
     _performingLayout = NO;
+        
     
     // Super
     [super viewWillLayoutSubviews];
+}
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
 }
 
 - (void) performLayout {
@@ -799,14 +829,14 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
     
     // Toolbar
     if (_displayToolbar) {
-        [self.view addSubview:_toolbar];
+        [self.bgView addSubview:_toolbar];
     } else {
         [_toolbar removeFromSuperview];
     }
     
     // Close button
     if (_displayDoneButton && !self.navigationController.navigationBar) {
-        [self.view addSubview:_doneButton];
+        [self.bgView addSubview:_doneButton];
     }
     
     // Toolbar items & navigation
@@ -929,6 +959,52 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
     [scrollView removeFromSuperview];
     
     [self reloadData];
+}
+
+- (void)onDeviceOrientationChange {
+    UIDeviceOrientation orientation = [UIDevice currentDevice].orientation;
+    if (UIDeviceOrientationIsFlat(orientation)) {
+        return;
+    }
+    CGAffineTransform transform = CGAffineTransformIdentity;
+    CGRect frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
+    BOOL hidden = NO;
+    UIColor *navigationColor = [UIColor blackColor];
+    switch (orientation) {
+        case UIDeviceOrientationLandscapeLeft:
+        {
+            transform = CGAffineTransformMakeRotation(M_PI_2);
+            hidden = YES;
+            navigationColor = [[UIColor blackColor] colorWithAlphaComponent:0.3];
+        }
+            break;
+        case UIDeviceOrientationLandscapeRight:
+        {
+            transform = CGAffineTransformMakeRotation(-M_PI_2);
+            hidden = YES;
+            navigationColor = [[UIColor blackColor] colorWithAlphaComponent:0.3];
+        }
+            break;
+    }
+    [[UIApplication sharedApplication] setStatusBarHidden:hidden withAnimation:UIStatusBarAnimationFade];
+    [UIView beginAnimations:nil context:nil];
+    [UIView setAnimationDuration:0.3];
+    self.navigationBgView.backgroundColor = navigationColor;
+    self.bgView.transform = transform;
+    self.bgView.frame = frame;
+    [UIView commitAnimations];
+    
+}
+
+
+/**
+ * 获取变换的旋转角度
+ *
+ * @return 变换矩阵
+ */
+- (CGAffineTransform)getTransformRotationAngleOfOrientation:(UIDeviceOrientation)orientation {
+    // 状态条的方向已经设置过,所以这个就是你想要旋转的方向
+  
 }
 
 #pragma mark - Data
@@ -1179,7 +1255,7 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
 #pragma mark - Frame Calculations
 
 - (CGRect) frameForPagingScrollView {
-    CGRect frame = self.view.bounds;
+    CGRect frame = self.bgView.bounds;
     
     frame.origin.x -= PADDING;
     frame.size.width += (2 * PADDING);
@@ -1215,23 +1291,36 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
     return CGPointMake(newOffset, 0);
 }
 
-- (BOOL) isLandscape:(UIInterfaceOrientation)orientation {
-    return UIInterfaceOrientationIsLandscape(orientation);
-}
-
-- (CGRect) frameForToolbarAtOrientation:(UIInterfaceOrientation)orientation {
+- (CGRect) frameForToolbarAtOrientation:(UIDeviceOrientation)orientation {
     CGFloat height = 44;
-    
-    if ([self isLandscape:orientation]) {
-        height = 32;
+    CGFloat safeAreaInsetsBottom = [UIScreen mainScreen].bounds.size.height >= 812 || [UIScreen mainScreen].bounds.size.width >= 812 ? 34 : 0;
+    if (UIDeviceOrientationIsLandscape(orientation)) {
+        safeAreaInsetsBottom = 0;
     }
-    
-    CGFloat safeAreaInsetsBottom = [UIScreen mainScreen].bounds.size.height >= 812 ? 34 : 0;
-    return CGRectMake(0, self.view.bounds.size.height - height - safeAreaInsetsBottom, self.view.bounds.size.width, height);
+    return CGRectMake(0, self.bgView.bounds.size.height - 44 - safeAreaInsetsBottom, self.bgView.bounds.size.width, 44);
 }
 
-- (CGRect) frameForDoneButtonAtOrientation:(UIInterfaceOrientation)orientation {
-    CGRect screenBound = self.view.bounds;
+
+- (CGRect)frameForNavigationBgAtOrientation:(UIDeviceOrientation)orientation {
+    CGFloat y = [UIScreen mainScreen].bounds.size.height >= 812 || [UIScreen mainScreen].bounds.size.width >= 812 ? 44: 20;
+    if (UIDeviceOrientationIsLandscape(orientation)) {
+        y = 0;
+    }
+    CGRect rect = CGRectMake(0, 0, self.bgView.bounds.size.width, 44 + y);
+    return rect;
+}
+
+- (CGRect)frameForNavigationAtOrientation:(UIDeviceOrientation)orientation {
+    CGFloat y = [UIScreen mainScreen].bounds.size.height >= 812 || [UIScreen mainScreen].bounds.size.width >= 812 ? 44: 20;
+    if (UIDeviceOrientationIsLandscape(orientation)) {
+        y = 0;
+    }
+    CGRect rect = CGRectMake(0, y, self.bgView.bounds.size.width, 44);
+    return rect;
+}
+
+- (CGRect) frameForDoneButtonAtOrientation:(UIDeviceOrientation)orientation {
+    CGRect screenBound = self.bgView.bounds;
     CGFloat screenWidth = screenBound.size.width;
     
     // if ([self isLandscape:orientation]) screenWidth = screenBound.size.height;
@@ -1319,6 +1408,13 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
         _counterLabel.text = nil;
     }
     
+    id <IDMPhoto> photo = [self photoAtIndex:_currentPageIndex];
+    self.navigationBgView.alpha = 0;
+    if ([photo title] || [photo desc]) {
+        self.navigationBgView.alpha = 1;
+        self.titleLabel.text = [photo title];
+        self.descLabel.text = [photo desc];
+    }
     // Buttons
     _previousButton.enabled = (_currentPageIndex > 0);
     _nextButton.enabled = (_currentPageIndex < [self numberOfPhotos] - 1);
@@ -1556,6 +1652,59 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
             completion();
         }];
     }
+}
+
+#pragma mark  getter
+- (UIView *)bgView {
+    if (!_bgView) {
+        _bgView = [[UIView alloc] initWithFrame:self.view.bounds];
+    }
+    return _bgView;
+}
+
+- (UIView *)navigationBgView {
+    if (!_navigationBgView) {
+        UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
+        _navigationBgView = [[UIView alloc] initWithFrame:[self frameForNavigationBgAtOrientation:orientation]];
+        _navigationBgView.alpha = 0;
+    }
+    return _navigationBgView;
+}
+- (UIView *)navigationView {
+    if (!_navigationView) {
+        UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
+        _navigationView = [[UIView alloc] initWithFrame:[self frameForNavigationAtOrientation:orientation]];
+    }
+    return _navigationView;
+}
+
+- (UIButton *)closeButton {
+    if (!_closeButton) {
+        _closeButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        _closeButton.frame = CGRectMake(0, 0, 40, 44);
+        [_closeButton setImage:[UIImage imageNamed:@"IDMPhotoBrowser.bundle/images/IDMPhotoBrowser_dismiss"] forState:UIControlStateNormal];
+        [_closeButton addTarget:self action:@selector(doneButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _closeButton;
+}
+- (UILabel *)titleLabel {
+    if (!_titleLabel) {
+        _titleLabel = [[UILabel alloc] init];
+        _titleLabel.frame = CGRectMake(40, 7, self.navigationView.bounds.size.width-40, 14);
+        _titleLabel.textColor = [UIColor whiteColor];
+        _titleLabel.font = [UIFont boldSystemFontOfSize:12];
+    }
+    return _titleLabel;
+}
+
+- (UILabel *)descLabel {
+    if (!_descLabel) {
+        _descLabel = [[UILabel alloc] init];
+        _descLabel.frame = CGRectMake(40, 27, self.navigationView.bounds.size.width-40, 12);
+        _descLabel.textColor = [UIColor whiteColor];
+        _descLabel.font = [UIFont systemFontOfSize:10];
+    }
+    return _descLabel;
 }
 
 @end

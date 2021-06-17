@@ -63,4 +63,8 @@
 // Return nil if there is no placeholder
 - (UIImage *)placeholderImage;
 
+- (NSString *)title;
+- (NSString *)desc;
+
+
 @end

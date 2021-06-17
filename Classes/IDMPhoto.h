@@ -19,6 +19,8 @@
 typedef void (^IDMProgressUpdateBlock)(CGFloat progress);
 
 // Properties
+@property (nonatomic, copy) NSString *title;
+@property (nonatomic, copy) NSString *desc;
 @property (nonatomic, strong) NSString *caption;
 @property (nonatomic, strong) NSURL *photoURL;
 @property (nonatomic, strong) IDMProgressUpdateBlock progressUpdateBlock;

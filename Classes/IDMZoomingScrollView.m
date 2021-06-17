@@ -181,6 +181,8 @@
     }
     // Sizes
     CGSize boundsSize = self.bounds.size;
+    boundsSize.width -= 0.1;
+    boundsSize.height -= 0.1;
     
     CGSize imageSize = _photoImageView.frame.size;
     
@@ -189,15 +191,16 @@
     CGFloat yScale = boundsSize.height / imageSize.height;  // the scale needed to perfectly fit the image height-wise
     CGFloat minScale = MIN(xScale, yScale);                 // use minimum of these to allow the image to become fully visible
     
+    
     // If image is smaller than the screen then ensure we show it at
     // min scale of 1
     if (xScale > 1 && yScale > 1) {
         // minScale = 1.0;
     }
     
-    if ([self hasOriginImage] || [_photo underlyingImage]) {
-        minScale = xScale;
-    }
+//    if ([self hasOriginImage] || [_photo underlyingImage]) {
+//        minScale = xScale;
+//    }
     
     // Calculate Max
     CGFloat maxScale = 4.0; // Allow double scale
@@ -214,6 +217,8 @@
     self.maximumZoomScale = maxScale;
     self.minimumZoomScale = minScale;
     self.zoomScale = minScale;
+    
+    _photoImageView.frame = CGRectMake(0, 0, _photoImageView.frame.size.width, _photoImageView.frame.size.height);
     
     [self setNeedsLayout];
 }
@@ -264,7 +269,7 @@
     // Calculate Min
     CGFloat xScale = boundsSize.width / imageSize.width * scale;    // the scale needed to perfectly fit the image width-wise
     centerRect.origin = CGPointZero;
-    centerRect.size = CGSizeMake(boundsSize.width, imageSize.height * xScale / scale);;
+    centerRect.size = CGSizeMake(boundsSize.width, imageSize.height * xScale / scale);
     return centerRect;
 }
 
@@ -286,7 +291,7 @@
     } else {
         frameToCenter.origin.y = 0;
     }
-    
+
     return frameToCenter;
 }
 
