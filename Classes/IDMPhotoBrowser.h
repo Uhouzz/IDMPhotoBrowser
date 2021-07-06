@@ -77,6 +77,10 @@
 // Animation time (default .28)
 @property (nonatomic) float animationDuration;
 
+@property (nonatomic, copy) dispatch_block_t shareClickBlock;
+@property (nonatomic, copy) void(^shareTypeBlock)(NSString *activityType);
+
+
 
 // Init
 - (id) initWithPhotos:(NSArray *)photosArray;

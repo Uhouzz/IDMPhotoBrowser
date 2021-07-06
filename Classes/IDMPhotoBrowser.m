@@ -1564,6 +1564,9 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
             if (photo.caption) {
                 [activityItems addObject:photo.caption];
             }
+            if (self.shareClickBlock) {
+                self.shareClickBlock();
+            }
             
             self.activityViewController =
             [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:nil];
@@ -1573,6 +1576,9 @@ leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rig
             if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0")) {
                 [self.activityViewController setCompletionWithItemsHandler:^(NSString *activityType, BOOL completed,
                                                                              NSArray *returnedItems, NSError *activityError) {
+                    if (self.shareTypeBlock && completed) {
+                        self.shareTypeBlock(activityType);
+                    }
                     [selfBlock hideControlsAfterDelay];
                     selfBlock.activityViewController = nil;
                 }];
